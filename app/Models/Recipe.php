@@ -25,6 +25,7 @@ class Recipe extends Model
     protected function casts(): array
     {
         return [
+            'ingredients' => 'array',
             'steps' => 'array'
         ];
     }
