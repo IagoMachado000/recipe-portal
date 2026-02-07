@@ -23,7 +23,6 @@ return new class extends Migration
             $table->smallInteger('score');
             $table->unique(['recipe_id', 'user_id'], 'ratings_recipe_user_unique');
             $table->timestamp('created_at')->useCurrent();
-            $table->timestamps();
         });
 
         DB::statement("
