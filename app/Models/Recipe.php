@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Recipe extends Model
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -26,7 +27,9 @@ class Recipe extends Model
     {
         return [
             'ingredients' => 'array',
-            'steps' => 'array'
+            'steps' => 'array',
+            'rating_avg' => 'float',
+            'rating_count' => 'integer',
         ];
     }
 

@@ -21,8 +21,8 @@ class RecipeFactory extends Factory
             'user_id' => User::factory(),
             'title' => $this->generateRealisticTitle(),
             'description' => $this->faker->optional(0.7)->sentence(10),
-            'ingredients' => json_encode($this->generateIngredients()),
-            'steps' => implode("\n", $this->generateSteps()),
+            'ingredients' => $this->generateIngredients(),
+            'steps' => $this->generateSteps(),
             'rating_avg' => 0.00,
             'rating_count' => 0,
         ];
