@@ -27,7 +27,9 @@ class Recipe extends Model
     {
         return [
             'ingredients' => 'array',
-            'steps' => 'array'
+            'steps' => 'array',
+            'rating_avg' => 'float',
+            'rating_count' => 'integer',
         ];
     }
 
