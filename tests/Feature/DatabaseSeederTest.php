@@ -22,7 +22,7 @@ class DatabaseSeederTest extends TestCase
         $this->seed();
 
         // Verificar se 10 usuários foram criados
-        $this->assertEquals(10, User::count());
+        expect(User::count())->toBe(10);
     }
 
     /**
@@ -34,7 +34,7 @@ class DatabaseSeederTest extends TestCase
         $this->seed();
 
         // Verificar se 10 receitas foram criadas
-        $this->assertEquals(10, Recipe::count());
+        expect(Recipe::count())->toBe(10);
     }
 
     /**
@@ -51,8 +51,8 @@ class DatabaseSeederTest extends TestCase
         // Verificar cada receita tem entre 5 e 10 comentários
         foreach ($recipes as $recipe) {
             $commentCount = $recipe->comments()->count();
-            $this->assertGreaterThanOrEqual(5, $commentCount);
-            $this->assertLessThanOrEqual(10, $commentCount);
+            expect($commentCount)->toBeGreaterThanOrEqual(5);
+            expect($commentCount)->toBeLessThanOrEqual(10);
         }
     }
 
@@ -70,8 +70,8 @@ class DatabaseSeederTest extends TestCase
         // Verificar cada receita tem entre 10 e 20 avaliações
         foreach ($recipes as $recipe) {
             $ratingCount = $recipe->ratings()->count();
-            $this->assertGreaterThanOrEqual(10, $ratingCount);
-            $this->assertLessThanOrEqual(20, $ratingCount);
+            expect($ratingCount)->toBeGreaterThanOrEqual(10);
+            expect($ratingCount)->toBeLessThanOrEqual(20);
         }
     }
 
@@ -89,7 +89,7 @@ class DatabaseSeederTest extends TestCase
             ->havingRaw('COUNT(*) > 1')
             ->count();
 
-        $this->assertEquals(0, $duplicates, 'Avaliações duplicadas encontradas!');
+        expect($duplicates)->toBe(0, 'Avaliações duplicadas encontradas!');
     }
 
     /**
@@ -107,8 +107,8 @@ class DatabaseSeederTest extends TestCase
         foreach ($recipes as $recipe) {
             // Se a receita tem avaliações, a média deve ser > 0
             if ($recipe->ratings()->count() > 0) {
-                $this->assertGreaterThan(0, $recipe->rating_avg);
-                $this->assertEquals($recipe->ratings()->count(), $recipe->rating_count);
+                expect($recipe->rating_avg)->toBeGreaterThan(0);
+                expect($recipe->rating_count)->toBe($recipe->ratings()->count());
             }
         }
     }
@@ -123,27 +123,27 @@ class DatabaseSeederTest extends TestCase
 
         // Testar relacionamento User -> Recipe
         $user = User::first();
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $user->recipes);
+        expect($user->recipes)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
 
         // Testar relacionamento Recipe -> User
         $recipe = Recipe::first();
-        $this->assertInstanceOf(User::class, $recipe->user);
+        expect($recipe->user)->toBeInstanceOf(User::class);
 
         // Testar relacionamento Recipe -> Comments
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $recipe->comments);
+        expect($recipe->comments)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
 
         // Testar relacionamento Recipe -> Ratings
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Collection::class, $recipe->ratings);
+        expect($recipe->ratings)->toBeInstanceOf(\Illuminate\Database\Eloquent\Collection::class);
 
         // Testar relacionamento Comment -> User e Recipe
         $comment = Comment::first();
-        $this->assertInstanceOf(User::class, $comment->user);
-        $this->assertInstanceOf(Recipe::class, $comment->recipe);
+        expect($comment->user)->toBeInstanceOf(User::class);
+        expect($comment->recipe)->toBeInstanceOf(Recipe::class);
 
         // Testar relacionamento Rating -> User e Recipe
         $rating = Rating::first();
-        $this->assertInstanceOf(User::class, $rating->user);
-        $this->assertInstanceOf(Recipe::class, $rating->recipe);
+        expect($rating->user)->toBeInstanceOf(User::class);
+        expect($rating->recipe)->toBeInstanceOf(Recipe::class);
     }
 
     /**
@@ -156,25 +156,26 @@ class DatabaseSeederTest extends TestCase
 
         // Verificar se receitas têm títulos válidos
         $recipes = Recipe::all();
+
         foreach ($recipes as $recipe) {
-            $this->assertNotEmpty($recipe->title);
-            $this->assertLessThanOrEqual(120, strlen($recipe->title));
-            $this->assertIsArray($recipe->ingredients);
-            $this->assertNotEmpty($recipe->ingredients);
+            expect($recipe->title)->not->toBeEmpty();
+            expect(strlen($recipe->title))->toBeLessThanOrEqual(120);
+            expect($recipe->ingredients)->toBeArray();
+            expect($recipe->ingredients)->not->toBeEmpty();
         }
 
         // Verificar se comentários têm conteúdo válido
         $comments = Comment::all();
         foreach ($comments as $comment) {
-            $this->assertNotEmpty($comment->body);
-            $this->assertLessThanOrEqual(1000, strlen($comment->body));
+            expect($comment->body)->not->toBeEmpty();
+            expect(strlen($comment->body))->toBeLessThanOrEqual(1000);
         }
 
         // Verificar se avaliações têm scores válidos
         $ratings = Rating::all();
         foreach ($ratings as $rating) {
-            $this->assertGreaterThanOrEqual(1, $rating->score);
-            $this->assertLessThanOrEqual(5, $rating->score);
+            expect($rating->score)->toBeGreaterThanOrEqual(1);
+            expect($rating->score)->toBeLessThanOrEqual(5);
         }
     }
 }
