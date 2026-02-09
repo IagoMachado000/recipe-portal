@@ -15,6 +15,15 @@ class UpdateRecipeRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('title')) {
+            $this->merge([
+                'title' => mb_strtolower(trim($this->title)),
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -28,7 +37,7 @@ class UpdateRecipeRequest extends FormRequest
                 'string',
                 'min:3',
                 'max:120',
-                Rule::unique('recipes', 'title')->ignore($this->route('recipe')->id ?? null),
+                Rule::unique('recipes', 'title')->ignore($this->recipe),
             ],
             'description' => 'nullable|string|max:500',
             'ingredients' => 'required|array|min:1|max:20',
