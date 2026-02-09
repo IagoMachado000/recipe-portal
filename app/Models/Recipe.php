@@ -24,6 +24,11 @@ class Recipe extends Model
         'rating_count',
     ];
 
+    protected $attributes = [
+        'rating_avg' => 0,
+        'rating_count' => 0,
+    ];
+
     protected function casts(): array
     {
         return [
