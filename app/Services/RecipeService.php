@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\DTOs\RecipeDTO;
 use App\Models\Recipe;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,21 @@ use Illuminate\Support\Str;
 
 class RecipeService
 {
+    public function getPublishedRecipes(int $perPage = 12): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return Recipe::withCount(['ratings', 'comments'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
+
+    public function getUserRecipes(User $user, int $perPage = 12): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return $user->recipes()
+            ->withCount(['ratings', 'comments'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+    }
+
     public function create(RecipeDTO $dto): Recipe
     {
         return DB::transaction(function () use ($dto) {
