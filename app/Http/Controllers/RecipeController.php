@@ -21,7 +21,9 @@ class RecipeController extends Controller
      */
     public function dashboard()
     {
-        //
+        $recipes = $this->recipeService->getUserRecipes(Auth::user());
+
+        return view('recipes.dashboard', compact('recipes'));
     }
 
     /**
@@ -29,7 +31,8 @@ class RecipeController extends Controller
      */
     public function index()
     {
-        //
+        $recipes = $this->recipeService->getPublishedRecipes();
+        return view('recipes.index', compact('recipes'));
     }
 
     /**
@@ -37,7 +40,7 @@ class RecipeController extends Controller
      */
     public function create()
     {
-        //
+        return view('recipes.create');
     }
 
     /**
@@ -61,7 +64,7 @@ class RecipeController extends Controller
      */
     public function show(Recipe $recipe)
     {
-        //
+        return view('recipes.show', compact('recipe'));
     }
 
     /**
@@ -69,7 +72,23 @@ class RecipeController extends Controller
      */
     public function edit(Recipe $recipe)
     {
-        //
+        $ingredients = old('ingredients', $recipe->ingredients ?? []);
+        $ingredients = $ingredients ?: [''];
+
+        $steps = old('steps');
+
+        if ($steps === null) {
+            $stepsArray = is_array($recipe->steps) ? $recipe->steps : [];
+
+            $stepsArray = array_map(function (string $step) {
+                // Remove "Passo X:" do início
+                return preg_replace('/^Passo\s+\d+\s*:\s*/i', '', $step);
+            }, $stepsArray);
+
+            $steps = implode("\n", $stepsArray);
+        }
+
+        return view('recipes.edit', compact('recipe', 'ingredients', 'steps'));
     }
 
     /**
