@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
 @section('content')
 <div class="container py-5">
     <!-- Recipe Header -->
@@ -97,11 +98,18 @@
                 </h3>
 
                 @auth
-                    <form action="{{ route('comments.store') }}" method="POST" class="mb-4">
+                    <form action="{{ route('comments.store') }}" method="POST" class="mb-4" novalidate>
                         @csrf
                         <input type="hidden" name="recipe_id" value="{{ $recipe->id }}">
-                        <textarea name="body" class="form-control" rows="3"
-                                  placeholder="Deixe seu comentário..." required></textarea>
+                        <textarea
+                            name="body"
+                            class="form-control @error('body') is-invalid @enderror"
+                            rows="3"
+                            placeholder="Deixe seu comentário..."
+                            required>{{ old('body') }}</textarea>
+                        @error('body')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                         <button type="submit" class="btn btn-primary btn-sm mt-2">Comentar</button>
                     </form>
                 @else
