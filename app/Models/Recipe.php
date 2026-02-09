@@ -19,8 +19,14 @@ class Recipe extends Model
         'description',
         'ingredients',
         'steps',
+        'slug',
         'rating_avg',
         'rating_count',
+    ];
+
+    protected $attributes = [
+        'rating_avg' => 0,
+        'rating_count' => 0,
     ];
 
     protected function casts(): array

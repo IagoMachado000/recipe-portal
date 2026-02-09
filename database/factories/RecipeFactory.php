@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Recipe>
@@ -17,12 +18,15 @@ class RecipeFactory extends Factory
      */
     public function definition(): array
     {
+        $title = $this->generateRealisticTitle();
+
         return [
             'user_id' => User::factory(),
-            'title' => $this->generateRealisticTitle(),
+            'title' => $title,
             'description' => $this->faker->optional(0.7)->sentence(10),
             'ingredients' => $this->generateIngredients(),
             'steps' => $this->generateSteps(),
+            'slug' => Str::slug($title),
             'rating_avg' => 0.00,
             'rating_count' => 0,
         ];
