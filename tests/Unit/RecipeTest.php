@@ -7,6 +7,7 @@ use App\Models\Rating;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class RecipeTest extends TestCase
@@ -110,15 +111,18 @@ class RecipeTest extends TestCase
      */
     public function test_recipe_fillable_attributes(): void
     {
+        $title = 'Título Teste';
+
         // Criar receita com atributos específicos
         $recipe = new Recipe([
             'user_id' => 1,
-            'title' => 'Título Teste',
+            'title' => $title,
             'description' => 'Descrição Teste',
             'ingredients' => ['ingrediente1', 'ingrediente2'],
             'steps' => ['Passo 1: teste'],
             'rating_avg' => 4.5,
             'rating_count' => 10,
+            'slug' => Str::slug($title),
         ]);
 
         // Verificar se atributos foram preenchidos
@@ -129,6 +133,7 @@ class RecipeTest extends TestCase
         expect($recipe->steps)->toBeArray();
         expect($recipe->rating_avg)->toBe(4.5);
         expect($recipe->rating_count)->toBe(10);
+        expect($recipe->slug)->toBe(Str::slug($title));
     }
 
     /**

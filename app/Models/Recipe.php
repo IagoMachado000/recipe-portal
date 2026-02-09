@@ -19,6 +19,7 @@ class Recipe extends Model
         'description',
         'ingredients',
         'steps',
+        'slug',
         'rating_avg',
         'rating_count',
     ];
