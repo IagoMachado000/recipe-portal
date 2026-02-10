@@ -1,10 +1,11 @@
 @extends('layouts.app')
+
 @section('content')
 <div class="container py-5">
-    <!-- Recipe Header -->
     <div class="row mb-5">
         <div class="col-lg-8">
-            <h1 class="h2 fw-light mb-3">{{ $recipe->title }}</h1>
+            <h1 class="h2 fw-light mb-0">{{ $recipe->title }}</h1>
+            <small class="text-muted mb-3 d-block fw-semibold">Autor: {{ $recipe->user->name }}</small>
             @if($recipe->description)
                 <p class="text-muted">{{ $recipe->description }}</p>
             @endif
@@ -23,7 +24,6 @@
                     @endfor
                 </div>
                 <small class="text-muted">
-                    {{-- CORREÇÃO: 2 casas decimais ao invés de 1 --}}
                     {{ number_format($recipe->rating_avg, 2) }}
                     ({{ $recipe->rating_count }} avaliações)
                 </small>
@@ -34,10 +34,8 @@
         </div>
     </div>
 
-    <!-- Content Tabs -->
     <div class="row">
         <div class="col-lg-8">
-            <!-- Ingredients -->
             <section class="mb-5">
                 <h3 class="h5 fw-light text-muted mb-3">Ingredientes</h3>
                 <div class="bg-light p-4 rounded">
@@ -49,8 +47,7 @@
                 </div>
             </section>
 
-            <!-- Steps -->
-            <section>
+            <section class="mb-5">
                 <h3 class="h5 fw-light text-muted mb-3">Modo de Preparo</h3>
                 <div class="bg-light p-4 rounded">
                     @foreach ($recipe->steps as $index => $step)
@@ -60,17 +57,12 @@
                     @endforeach
                 </div>
             </section>
-
-            <small class="text-muted mt-2 d-block fw-semibold">Autor: {{ $recipe->user->name }}</small>
         </div>
 
-        <!-- Sidebar: Rating & Comments -->
         <div class="col-lg-4">
-            <!-- Rating Section -->
             <section class="mb-4">
                 <h3 class="h5 fw-light text-muted mb-3">Avaliar Receita</h3>
                 @auth
-                    {{-- OTIMIZAÇÃO: Verificação mais eficiente --}}
                     @php
                         $userRating = Auth::user()->ratings()->where('recipe_id', $recipe->id)->first();
                     @endphp
@@ -85,7 +77,6 @@
                                         <button type="submit"
                                                 name="score"
                                                 value="{{ $i }}"
-                                                {{-- MELHORIA: UX com hover effects --}}
                                                 class="btn btn-outline-warning rating-star"
                                                 onmouseover="this.style.backgroundColor='#ffc107'; this.style.color='white';"
                                                 onmouseout="this.style.backgroundColor=''; this.style.color='';"
@@ -120,7 +111,6 @@
                 @endauth
             </section>
 
-            <!-- Comments Section -->
             <section>
                 <h3 class="h5 fw-light text-muted mb-3">
                     Comentários ({{ $recipe->comments->count() }})
@@ -149,7 +139,6 @@
                     </div>
                 @endauth
 
-                <!-- Comments List -->
                 <div class="comments-list">
                     @foreach ($recipe->comments()->with('user')->orderBy('created_at', 'desc')->get() as $comment)
                         <div class="border-bottom pb-3 mb-3">
@@ -176,10 +165,9 @@
         </div>
     </div>
 </div>
-{{-- JavaScript para AJAX responses --}}
+
 @push('scripts')
 <script>
-// Handle rating form submission with AJAX
 document.querySelector('form[action*="ratings.store"]')?.addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -197,13 +185,11 @@ document.querySelector('form[action*="ratings.store"]')?.addEventListener('submi
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Reload para mostrar nova média e estado de avaliação
             location.reload();
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        // Fallback para submit normal
         form.submit();
     });
 });

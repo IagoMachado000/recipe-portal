@@ -1,8 +1,8 @@
 @extends('layouts.app')
+
 @section('content')
 <div class="container py-5">
-    <!-- Header com Actions -->
-    <div class="d-flex justify-content-between align-items-center mb-5">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-5">
         <div>
             <h1 class="h3 fw-light text-muted">Minhas Receitas</h1>
             <p class="text-muted small">Gerencie suas receitas compartilhadas</p>
@@ -13,7 +13,7 @@
             </a>
         @endif
     </div>
-    <!-- Grid Cards com Actions -->
+
     <div class="row g-4">
         @forelse($recipes as $recipe)
             <div class="col-md-6 col-lg-4">
