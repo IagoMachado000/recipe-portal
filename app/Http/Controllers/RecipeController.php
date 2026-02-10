@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DTOs\RecipeDTO;
+use App\Http\Requests\RecipeSearchRequest;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
 use App\Models\Recipe;
@@ -19,9 +20,12 @@ class RecipeController extends Controller
     /**
      * Display a listing of the resource private.
      */
-    public function dashboard()
+    public function dashboard(RecipeSearchRequest $request)
     {
-        $recipes = $this->recipeService->getUserRecipes(Auth::user());
+        $recipes = $this->recipeService->getUserRecipes(
+            Auth::user(),
+            $request->validated()
+        );
 
         return view('recipes.dashboard', compact('recipes'));
     }
@@ -29,9 +33,12 @@ class RecipeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(RecipeSearchRequest $request)
     {
-        $recipes = $this->recipeService->getPublishedRecipes();
+        $recipes = $this->recipeService->getPublishedRecipes(
+            $request->validated()
+        );
+
         return view('recipes.index', compact('recipes'));
     }
 

@@ -258,4 +258,54 @@
 - Notification: verificação para não notificar autor da própria avaliação
 - Controller: respostas JSON compatíveis com frontend existente
 
+## Pesquisa e Filtragem
+
+### FormRequest
+
+- `RecipeSearchRequest`
+    - Validação: search (nullable|string|max:100), filter (nullable|in:date,title,rating), sort_order (nullable|in:asc,desc)
+    - Autorização: true (busca pública)
+    - Preparação: normalização de busca e conversão de filtros em sort_by/sort_order
+
+### Service
+
+- `RecipeService`
+    - getPublishedRecipes() com suporte a filtros e ordenação
+    - Aplicação de filtro: LIKE em título, whereNotNull() para campos específicos
+    - Aplicação de ordenação: múltiplos critérios (created_at, title, rating_avg)
+    - Queries otimizadas com eager loading e índices
+
+### Frontend
+
+- Interface de pesquisa e filtros em recipes/index.blade.php
+    - Campo de busca com placeholder e ícone
+    - Select de filtros rápidos (data, nome, avaliação)
+    - Botão de ordenação com toggle (↑/↓) e ícone dinâmico
+    - JavaScript para eventos de mudança e atualização de estado
+    - Valores preservados nos inputs durante reload
+    - URLs limpas e amigáveis com parâmetros preservados
+    - Botão simples para limpeza de filtros, redirecionamento novamente para `recipes.index`
+
+### Rotas
+
+- GET /recipes com suporte a parâmetros de busca e filtros
+- Paginação mantida com preservação de filtros
+- URLs amigáveis: ?search=termo&filter=tipo&sort_order=direcao
+
+### Features Implementadas
+
+- Pesquisa por título (case insensitive)
+- Filtros rápidos: data de criação, nome da receita, avaliações
+- Ordenação flexível: ascendente/descendente para cada tipo
+- Preservação de estado entre reloads
+- Interface responsiva e intuitiva
+- Performance otimizada com índices existentes
+
+### Correções Aplicadas
+
+- Validação case insensitive através de ILIKE no PostgreSQL
+- Normalização de busca para remover espaços extras
+- Tratamento defensivo de parâmetros não existentes
+- Validação cruzada entre parâmetros de filtro e ordenação
+
 * AJUSTAR PAGINATE
