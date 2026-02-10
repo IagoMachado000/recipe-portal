@@ -331,3 +331,15 @@ Pesquisa e filtragem
 git checkout -b feat/search-and-filters
 
 sail artisan make:request RecipeSearchRequest
+
+git add .
+git commit -m "feat(search-and-filter): add pesquisa por nome e filtragem por nome, data de criação e avaliação"
+git push -u origin feat/search-and-filters
+pr + merge
+git checkout develop && git pull
+
+===
+
+Alterando parâmetro de rota do id para slug
+
+git checkout -b refactor/add-slug

@@ -308,4 +308,8 @@
 - Tratamento defensivo de parâmetros não existentes
 - Validação cruzada entre parâmetros de filtro e ordenação
 
-* AJUSTAR PAGINATE
+## Rotas com Slug
+
+- Para mudar o parâmetro de rota de `id` para `slug` foi usado `Route Model Binding` com chave customizada
+- `Route::get('recipes/{recipe:slug}', [RecipeController::class, 'show'])->name('recipes.show');`
+- `nome do parâmetro:coluna do model usada na busca`
