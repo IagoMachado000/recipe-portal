@@ -2,6 +2,11 @@
 
 @section('content')
 <div class="container py-5">
+    @if (session()->has('success'))
+        <div class="p-3 mb-2 bg-success text-white border rounded bg-opacity-75" id="feedback">
+            <p class="m-0">{{ session('success') }}</p>
+        </div>
+    @endif
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-5">
         <div>
             <h1 class="h3 fw-light text-muted">Minhas Receitas</h1>
@@ -71,3 +76,14 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+    <script>
+        const feedback = document.querySelector('#feedback');
+        if (feedback) {
+            setInterval(() => {
+                feedback.remove()
+            }, 3000);
+        }
+    </script>
+@endpush

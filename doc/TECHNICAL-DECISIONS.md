@@ -373,3 +373,14 @@ git commit -m "refactor(ui): ajustando responsividade"
 git push -u origin refactor/ui-responsive
 pr + merge
 git checkout develop && git pull
+
+===
+
+Adicionando feedback ao criar e editar receitas
+
+git checkout -b feat/feedback-recipe
+git add .
+git commit -m "feat(feedback): add mensagens de feedback"
+git push -u origin feat/feedback-recipe
+pr + merge
+git checkout develop && git pull
