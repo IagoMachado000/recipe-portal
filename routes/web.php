@@ -15,7 +15,8 @@ Auth::routes();
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::redirect('/', '/recipes');
-Route::resource('recipes', RecipeController::class)->only(['index', 'show']);
+Route::resource('recipes', RecipeController::class)->only(['index']);
+Route::get('recipes/{recipe:slug}', [RecipeController::class, 'show'])->name('recipes.show');
 
 Route::middleware('auth')->prefix('dashboard')->group(function () {
     Route::get('recipes', [RecipeController::class, 'dashboard'])->name('recipes.dashboard');

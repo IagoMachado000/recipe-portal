@@ -71,7 +71,7 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body p-0">
-                        <a href="{{ route('recipes.show', $recipe) }}" class="d-block p-4 text-decoration-none text-dark">
+                        <a href="{{ route('recipes.show', $recipe->slug) }}" class="d-block p-4 text-decoration-none text-dark">
                             <h5 class="card-title fw-light mb-3">
                                 {{ Str::limit($recipe->title, 45) }}
                             </h5>
