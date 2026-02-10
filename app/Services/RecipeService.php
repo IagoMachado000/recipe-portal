@@ -14,19 +14,31 @@ use Illuminate\Support\Str;
 
 class RecipeService
 {
-    public function getPublishedRecipes(int $perPage = 12): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getPublishedRecipes(array $filters = [], int $perPage = 9): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return Recipe::withCount(['ratings', 'comments'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+        $query = Recipe::withCount(['ratings', 'comments'])
+            ->where('title', 'ILIKE', '%' . ($filters['search'] ?? '') . '%');
+
+        // Aplicar filtro por tipo (se selecionado)
+        $this->applySimpleFilter($query, $filters);
+
+        // Aplicar ordenação
+        $this->applySimpleSorting($query, $filters);
+
+        return $query->paginate($perPage);
     }
 
-    public function getUserRecipes(User $user, int $perPage = 12): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getUserRecipes(User $user, array $filters = [], int $perPage = 12): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
-        return $user->recipes()
+        $query = $user->recipes()
             ->withCount(['ratings', 'comments'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+            ->where('title', 'ILIKE', '%' . ($filters['search'] ?? '') . '%');
+
+        $this->applySimpleFilter($query, $filters);
+
+        $this->applySimpleSorting($query, $filters);
+
+        return $query->paginate($perPage);
     }
 
     public function create(RecipeDTO $dto): Recipe
@@ -76,5 +88,48 @@ class RecipeService
 
             return true;
         });
+    }
+
+    private function applySimpleFilter($query, array $filters): void
+    {
+        if (!isset($filters['filter']) || empty($filters['filter'])) {
+            return; // Retorna se não houver filtro
+        }
+
+        switch ($filters['filter']) {
+            case 'date':
+                $query->whereNotNull('created_at'); // Apenas com data válida
+                break;
+            case 'rating':
+                $query->whereNotNull('rating_avg'); // Apenas com avaliações
+                break;
+            case 'title':
+                // Já está aplicado na busca base
+                break;
+        }
+    }
+
+    private function applySimpleSorting($query, array $filters): void
+    {
+        $sortBy = 'created_at';
+        $sortOrder = $filters['sort_order'] ?? 'desc';
+
+        if (isset($filters['sort_by'])) {
+            $sortBy = $filters['sort_by'];
+        } else if (isset($filters['filter'])) {
+            switch ($filters['filter']) {
+                case 'date':
+                    $sortBy = 'created_at';
+                    break;
+                case 'title':
+                    $sortBy = 'title';
+                    break;
+                case 'rating':
+                    $sortBy = 'rating_avg';
+                    break;
+            }
+        }
+
+        $query->orderBy($sortBy, $sortOrder);
     }
 }

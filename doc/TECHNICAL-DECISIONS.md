@@ -317,3 +317,17 @@ sail artisan make:request StoreRatingRequest
 sail artisan make:class DTOs/RatingDTO
 sail artisan make:class Services/RatingService
 sail artisan make:notification NewRatingNotification
+
+git add .
+git commit -m "feat(rating): add gestão completa de avaliações"
+git push -u origin feat/ranting-management
+pr + merge
+git checkout develop && git pull
+
+===
+
+Pesquisa e filtragem
+
+git checkout -b feat/search-and-filters
+
+sail artisan make:request RecipeSearchRequest
