@@ -43,7 +43,7 @@ class NewCommentNotification extends Notification
             // Metadados para UI
             'type' => 'new_comment',
             'icon' => '💬',
-            'url' => route('recipes.show', $this->comment->recipe_id) . '#comment-' . $this->comment->id,
+            'url' => route('recipes.show', $this->comment->recipe->slug) . '#comment-' . $this->comment->id,
         ];
     }
 
