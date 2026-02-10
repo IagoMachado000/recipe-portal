@@ -2,6 +2,11 @@
 
 @section('content')
 <div class="container py-5">
+    @if (session()->has('success'))
+        <div class="p-3 mb-2 bg-success text-white border rounded bg-opacity-75" id="feedback">
+            <p class="m-0">{{ session('success') }}</p>
+        </div>
+    @endif
     <div class="row mb-5">
         <div class="col-lg-8">
             <h1 class="h2 fw-light mb-0">{{ $recipe->title }}</h1>
@@ -193,6 +198,13 @@ document.querySelector('form[action*="ratings.store"]')?.addEventListener('submi
         form.submit();
     });
 });
+
+const feedback = document.querySelector('#feedback');
+if (feedback) {
+    setInterval(() => {
+        feedback.remove()
+    }, 3000);
+}
 </script>
 @endpush
 @endsection
