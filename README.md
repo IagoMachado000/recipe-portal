@@ -99,7 +99,7 @@ DB_USERNAME=recipeportal
 DB_PASSWORD=recipeportal
 ```
 
-> O valor `DB_HOST=mysql` é obrigatório para funcionar corretamente com o container do Sail.
+> O valor `DB_HOST=pgsql` é obrigatório para funcionar corretamente com o container do Sail.
 
 ---
 
