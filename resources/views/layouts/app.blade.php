@@ -27,13 +27,18 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="collapse navbar-collapse gap-3" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
+                    <ul class="navbar-nav ms-auto d-flex align-items-center gap-3">
                         <!-- Authentication Links -->
+                        <li>
+                            <a href="{{ route('recipes.index') }}" class="link-offset-2 link-underline link-underline-opacity-0 text-muted">
+                                Home
+                            </a>
+                        </li>
                         @auth
                             <li>
-                                <a href="{{ route('recipes.dashboard') }}" class="link-offset-2 link-underline link-underline-opacity-0">
+                                <a href="{{ route('recipes.dashboard') }}" class="link-offset-2 link-underline link-underline-opacity-0 text-muted">
                                     Minhas Receitas
                                 </a>
                             </li>
@@ -41,7 +46,7 @@
                     </ul>
 
                     <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav">
                         @auth
                             <!-- Notificações -->
                             <li class="nav-item dropdown position-relative">
@@ -175,5 +180,7 @@
             });
         }
     </script>
+
+    @stack('scripts')
 </body>
 </html>

@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
 <div class="container py-5">
     <!-- Recipe Header -->
@@ -24,8 +23,9 @@
                     @endfor
                 </div>
                 <small class="text-muted">
-                    {{ number_format($recipe->rating_avg, 1) }}
-                    ({{ $recipe->ratings_count }} avaliações)
+                    {{-- CORREÇÃO: 2 casas decimais ao invés de 1 --}}
+                    {{ number_format($recipe->rating_avg, 2) }}
+                    ({{ $recipe->rating_count }} avaliações)
                 </small>
             </div>
             <div class="d-flex gap-2 justify-content-end">
@@ -33,6 +33,7 @@
             </div>
         </div>
     </div>
+
     <!-- Content Tabs -->
     <div class="row">
         <div class="col-lg-8">
@@ -47,40 +48,67 @@
                     </ul>
                 </div>
             </section>
+
             <!-- Steps -->
             <section>
                 <h3 class="h5 fw-light text-muted mb-3">Modo de Preparo</h3>
                 <div class="bg-light p-4 rounded">
                     @foreach ($recipe->steps as $index => $step)
-                        <div class="mb-3">
+                        <div class="mb-3 {{ !$loop->last ? 'border-bottom pb-3' : '' }}">
                             {{ $step }}
                         </div>
                     @endforeach
                 </div>
             </section>
+
+            <small class="text-muted mt-2 d-block fw-semibold">Autor: {{ $recipe->user->name }}</small>
         </div>
+
         <!-- Sidebar: Rating & Comments -->
         <div class="col-lg-4">
             <!-- Rating Section -->
             <section class="mb-4">
                 <h3 class="h5 fw-light text-muted mb-3">Avaliar Receita</h3>
                 @auth
-                    @if(!Auth::user()->ratings()->where('recipe_id', $recipe->id)->exists())
+                    {{-- OTIMIZAÇÃO: Verificação mais eficiente --}}
+                    @php
+                        $userRating = Auth::user()->ratings()->where('recipe_id', $recipe->id)->first();
+                    @endphp
+
+                    @if(!$userRating)
                         <form action="{{ route('ratings.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="recipe_id" value="{{ $recipe->id }}">
                             <div class="mb-3">
                                 <div class="btn-group w-100" role="group">
                                     @for($i = 1; $i <= 5; $i++)
-                                        <button type="submit" name="score" value="{{ $i }}"
-                                                class="btn btn-outline-warning">★</button>
+                                        <button type="submit"
+                                                name="score"
+                                                value="{{ $i }}"
+                                                {{-- MELHORIA: UX com hover effects --}}
+                                                class="btn btn-outline-warning rating-star"
+                                                onmouseover="this.style.backgroundColor='#ffc107'; this.style.color='white';"
+                                                onmouseout="this.style.backgroundColor=''; this.style.color='';"
+                                                title="Avaliar com {{ $i }} estrela(s)">
+                                            ★
+                                        </button>
                                     @endfor
                                 </div>
                             </div>
                         </form>
                     @else
                         <div class="alert alert-info">
-                            <small>Você já avaliou esta receita</small>
+                            <small class="d-block mb-2">Você já avaliou esta receita:</small>
+                            <div class="text-warning">
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= $userRating->score)
+                                        ★
+                                    @else
+                                        ☆
+                                    @endif
+                                @endfor
+                            </div>
+                            <small class="text-muted">({{ $userRating->score }} estrela(s))</small>
                         </div>
                     @endif
                 @else
@@ -91,6 +119,7 @@
                     </div>
                 @endauth
             </section>
+
             <!-- Comments Section -->
             <section>
                 <h3 class="h5 fw-light text-muted mb-3">
@@ -119,6 +148,7 @@
                         </small>
                     </div>
                 @endauth
+
                 <!-- Comments List -->
                 <div class="comments-list">
                     @foreach ($recipe->comments()->with('user')->orderBy('created_at', 'desc')->get() as $comment)
@@ -146,4 +176,37 @@
         </div>
     </div>
 </div>
+{{-- JavaScript para AJAX responses --}}
+@push('scripts')
+<script>
+// Handle rating form submission with AJAX
+document.querySelector('form[action*="ratings.store"]')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload para mostrar nova média e estado de avaliação
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Fallback para submit normal
+        form.submit();
+    });
+});
+</script>
+@endpush
 @endsection

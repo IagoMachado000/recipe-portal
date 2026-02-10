@@ -292,6 +292,8 @@ git checkout develop && git pull
 
 Gestão de Comentários
 
+git checkout -b feat/comment-management
+
 sail artisan make:request StoreCommentRequest
 sail artisan make:class DTOs/CommentDTO
 sail artisan make:class Services/CommentService
@@ -299,6 +301,19 @@ sail artisan notifications:table
 sail artisan migrate
 sail artisan make:notification NewCommentNotification
 
+git add .
+git commit -m "feat(comment): add gestão completa de comentários"
+git push -u origin feat/recipe-crud
+pr + merge
+git checkout develop && git pull
+
 ===
 
 Gestão de Avaliações
+
+git checkout -b feat/rating-management
+
+sail artisan make:request StoreRatingRequest
+sail artisan make:class DTOs/RatingDTO
+sail artisan make:class Services/RatingService
+sail artisan make:notification NewRatingNotification

@@ -204,3 +204,58 @@
 - Controller: respostas AJAX para UX moderna
 
 ## Avaliação
+
+### FormRequest
+
+- `StoreRatingRequest`
+    - Validação: recipe_id (required|exists), score (required|integer|min:1|max:5)
+    - Autorização: true (middleware auth já garante)
+    - Mensagens customizadas em PT-BR para score min/max
+
+### DTO
+
+- `RatingDTO`
+    - Sanitização automática: score range 1-5 no construtor
+    - Construtor: type hints strict (int recipeId, userId, score)
+    - Métodos padrão: fromArray(), fromModel(), toArray()
+
+### Service
+
+- `RatingService`
+    - DB::transaction para garantir atomicidade
+    - updateOrCreate() respeita constraint unique automaticamente
+    - Recálculo automático: SUM/COUNT + round() com 2 casas decimais
+    - Notificação automática para autor da receita (exceto auto-avaliação)
+    - Logging completo para auditoria
+
+### Notification
+
+- `NewRatingNotification`
+    - Database channel apenas (simplicidade)
+    - Dados estruturados: title, message, IDs, score
+    - Metadados para UI: type, icon, url
+    - Não envia notificação para autor avaliar própria receita
+
+### Controller
+
+- `RatingController`
+    - Dependency injection do RatingService
+    - AJAX responses (expectsJson()) para UX moderna
+    - Error handling consistente (JSON + redirect)
+    - Resposta com: new_average, total_ratings, was_created
+
+### Database
+
+- Migration `create_ratings_table`
+    - Constraint unique: (recipe_id, user_id) para avaliação única
+    - CHECK constraint: score BETWEEN 1 AND 5
+    - Índices otimizados para performance de queries
+
+### Correções Aplicadas
+
+- RatingService: cálculo manual via SUM/COUNT (evita problemas PostgreSQL)
+- RatingDTO: sanitização de score para garantir range 1-5
+- Notification: verificação para não notificar autor da própria avaliação
+- Controller: respostas JSON compatíveis com frontend existente
+
+* AJUSTAR PAGINATE
