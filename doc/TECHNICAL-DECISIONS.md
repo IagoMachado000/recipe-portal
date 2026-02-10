@@ -1,16 +1,163 @@
+# Decisões Técnicas e Arquitetura
+
+Este documento descreve as **principais decisões técnicas e arquiteturais** adotadas durante o desenvolvimento do projeto **Portal de Receitas**, bem como o raciocínio por trás de cada escolha.
+
+O foco não é listar comandos executados ou histórico de commits, mas sim explicar **por que** determinadas abordagens foram escolhidas, conforme solicitado no teste técnico.
+
+> Algumas estruturas (Service Layer, DTOs, Policies, índices avançados) extrapolam o mínimo exigido. Elas foram adotadas de forma **consciente** para demonstrar organização, boas práticas e preocupação com manutenção e escalabilidade.
+
+---
+
+## Visão Geral do Projeto
+
+O desafio consistiu na implementação de um sistema simples de receitas com:
+
+- CRUD de receitas
+- Comentários
+- Avaliações (ratings)
+- Agregações de média e quantidade de avaliações
+
+As decisões técnicas priorizaram:
+
+- Clareza de código
+- Separação de responsabilidades
+- Integridade dos dados
+- Performance de leitura
+
+---
+
+## Ambiente e Stack
+
+- **Laravel** como framework principal
+- **Laravel Sail** para ambiente Dockerizado
+- **PostgreSQL** como banco de dados
+- **Mailpit** para testes de e-mail
+- **Bootstrap** para UI simples e funcional
+
+### Justificativa
+
+O uso do Sail garante ambiente padronizado e elimina dependências locais. O PostgreSQL foi escolhido por oferecer recursos avançados como `jsonb`, índices funcionais e constraints robustas.
+
+---
+
+## Arquitetura da Aplicação
+
+A aplicação segue uma separação clara de responsabilidades:
+
+- **Controllers**: camada fina de orquestração
+- **FormRequests**: validação e autorização
+- **DTOs**: sanitização e padronização de dados
+- **Services**: regras de negócio e transações
+- **Policies**: controle de autorização
+
+Essa abordagem evita controllers inchados, melhora a testabilidade e torna o código mais previsível.
+
+---
+
+## Validação e Normalização de Dados
+
+A validação é centralizada em **FormRequests**, garantindo consistência na entrada de dados.
+
+A normalização (ex: título da receita) é feita em `prepareForValidation()` para assegurar:
+
+- Validação case-insensitive
+- Funcionamento correto da regra de unicidade
+- Dados persistidos em formato consistente
+
+---
+
+## Service Layer e Transações
+
+Toda lógica de negócio que envolve persistência foi centralizada em Services.
+
+- Uso de `DB::transaction()` para garantir atomicidade
+- Nenhuma operação parcial é persistida em caso de erro
+- Facilita manutenção e testes unitários
+
+Essa camada também concentra regras como:
+
+- Recalcular médias de avaliação
+- Garantir regras de autoria
+- Encapsular regras de criação, edição e exclusão
+
+---
+
+## Testes Automatizados
+
+### Estratégia
+
+- **Feature Tests** para validar fluxos completos
+- **Unit Tests** para validar regras isoladas do domínio
+
+A prioridade foi testar o domínio e as regras de negócio, evitando testes de interface.
+
+### Ferramentas
+
+- Substituição do PHPUnit pelo **Pest**, visando:
+    - Sintaxe mais legível
+    - Menor boilerplate
+    - Maior clareza nos testes
+
+### Cobertura
+
+- Relacionamentos entre entidades
+- Casts de atributos
+- Soft deletes
+- Constraints de banco
+- Cálculo de médias e contadores
+
+Funcionalidades secundárias (comentários e avaliações) não tiveram cobertura completa por limitação de tempo.
+
+---
+
+## Evolução do Projeto (Visão de Alto Nível)
+
+O desenvolvimento seguiu etapas incrementais:
+
+1. Setup do ambiente e stack
+2. Modelagem do domínio
+3. Criação de factories e seeders
+4. Testes de domínio
+5. Implementação do CRUD de receitas
+6. Comentários e avaliações
+7. Pesquisa, filtros e ordenação
+8. Ajustes de UX e feedback
+
+Essa abordagem evitou commits gigantes e facilitou validações contínuas.
+
+---
+
+## Trade-offs e Limitações
+
+- Validação realizada apenas no servidor (sem validação client-side)
+- Cobertura parcial de testes para comentários e avaliações
+- Arquitetura mais robusta que o mínimo exigido pelo teste
+
+Essas decisões foram tomadas de forma consciente, considerando tempo e escopo disponíveis.
+
+---
+
+## Conclusão
+
+As decisões técnicas buscaram demonstrar **clareza de raciocínio, boas práticas e domínio do Laravel**, priorizando manutenção, segurança e performance, sem perder alinhamento com o escopo do teste técnico.
+
+---
+
+## Apêndice — Histórico de Implementação
+
 Criar novo projeto (PostgreSQL + MailPit)
 
 curl -s "https://laravel.build/recipe-portal?with=pgsql,mailpit" | bash
 
 cd recipe-portal && code .
 
-===
+---
 
 criar alias pro comando sail
 
 alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
 
-===
+---
 
 git init
 git checkout -b main
@@ -21,7 +168,7 @@ git push -u origin main
 git checkout -b develop && git push -u origin develop
 git pull
 
-===
+---
 
 Optei por usar o php 8.4 por ser mais estável e não ter problemas com pacotes
 
@@ -35,19 +182,19 @@ git push -u origin chore/changing-version-php
 pr + merge (develop)
 git checkout develop && git pull
 
-===
+---
 
 subir containers
 
 sail up -d
 
-===
+---
 
 subir tabelas pro banco
 
 sail artisan migrate
 
-===
+---
 
 git checkout -b chore/testing-pest
 
@@ -67,7 +214,7 @@ git push -u origin chore/testing-pest
 pr + merge (develop)
 git checkout develop && git pull
 
-===
+---
 
 instalando startkit laravel/ui (auth + bootstrap)
 
@@ -88,7 +235,7 @@ git push -u origin feat/auth-laravel-ui-bootstrap
 pr + merge (develop)
 git checkout develop && git pull
 
-===
+---
 
 Localização da aplicação para pt-br
 
@@ -106,7 +253,7 @@ git push -u origin feat/localization-pt-br
 pr + merge (develop)
 git checkout develop && git pull
 
-===
+---
 
 Criando a estrutura do banco de dados e relacionamentos
 
@@ -124,7 +271,7 @@ git add database/migrations/2026_02_07_161326_create_ratings_table.php
 git commit -m "refactor(domain): retirando coluna duplicada created_at e updated_at"
 sail artisan migrate:fresh
 
-===
+---
 
 Criando factories (popular banco com dados fake)
 
@@ -144,7 +291,7 @@ git push -u origin feat/domain
 pr + merge
 git checkout develop && git pull
 
-===
+---
 
 Criando testes de domínio
 
@@ -198,7 +345,7 @@ git push -u origin feat/testing-domain
 pr + merge
 git checkout develop && git pull
 
-===
+---
 
 Criando CRUD Recipe
 
@@ -288,7 +435,7 @@ git push -u origin feat/recipe-crud
 pr + merge
 git checkout develop && git pull
 
-===
+---
 
 Gestão de Comentários
 
@@ -307,7 +454,7 @@ git push -u origin feat/recipe-crud
 pr + merge
 git checkout develop && git pull
 
-===
+---
 
 Gestão de Avaliações
 
@@ -324,7 +471,7 @@ git push -u origin feat/ranting-management
 pr + merge
 git checkout develop && git pull
 
-===
+---
 
 Pesquisa e filtragem
 
@@ -338,7 +485,7 @@ git push -u origin feat/search-and-filters
 pr + merge
 git checkout develop && git pull
 
-===
+---
 
 Alterando parâmetro de rota do id para slug
 
@@ -349,7 +496,7 @@ git push -u origin refactor/add-slug
 pr + merge
 git checkout develop && git pull
 
-===
+---
 
 Ajustando componente de pagination
 
@@ -363,7 +510,7 @@ git push -u origin refactor/paginate
 pr + merge
 git checkout develop && git pull
 
-===
+---
 
 Ajustando responsividade da UI
 
@@ -374,7 +521,7 @@ git push -u origin refactor/ui-responsive
 pr + merge
 git checkout develop && git pull
 
-===
+---
 
 Adicionando feedback ao criar e editar receitas
 

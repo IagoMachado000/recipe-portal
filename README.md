@@ -1,59 +1,460 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Portal de Receitas — Documentação Técnica e Decisões de Arquitetura
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este documento descreve **as decisões técnicas, arquiteturais e de modelagem** adotadas no desenvolvimento do projeto **Portal de Receitas**, bem como o raciocínio por trás de cada escolha.
+O objetivo não é apenas explicar _como_ o sistema foi implementado, mas principalmente _por que_ determinadas abordagens foram escolhidas, conforme solicitado no teste técnico.
 
-## About Laravel
+> Algumas estruturas (DTO, Service Layer, Policies, índices avançados) extrapolam o mínimo exigido pelo teste. Elas foram adotadas de forma **consciente**, com o objetivo de demonstrar organização, boas práticas e preocupação com manutenção e escalabilidade.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Documentação Técnica
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Este projeto possui documentação complementar para explicar decisões técnicas e de modelagem:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Decisões Técnicas e Arquitetura**  
+  Veja: `docs/TECHNICAL-DECISIONS.md`
 
-## Learning Laravel
+- **Modelagem de Domínio e Banco de Dados**  
+  Veja: `docs/DOMINIO.md`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Sumário
 
-## Laravel Sponsors
+1. Setup local e ambiente de desenvolvimento
+2. Rodar o projeto localmente
+3. Decisões de arquitetura
+4. Modelagem de domínio e banco de dados
+5. Testes automatizados
+6. CRUD de Receitas
+7. Comentários
+8. Avaliações (Ratings)
+9. Pesquisa, filtros e ordenação
+10. Rotas e URLs amigáveis (Slug)
+11. Feedback ao usuário
+12. JavaScript e CSS
+13. Limitações e trade-offs
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 1. Setup local e ambiente
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+O projeto utiliza **Laravel Sail**, garantindo um ambiente Dockerizado padronizado e evitando dependências locais de PHP, Composer ou Node.js.
 
-## Contributing
+Principais escolhas:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- Docker + Sail para padronização do ambiente
+- PostgreSQL como banco de dados
+- Mailpit para inspeção de e-mails em desenvolvimento
+- Alias para facilitar o uso do comando `sail`
 
-## Code of Conduct
+Essa abordagem reduz inconsistências entre ambientes e facilita o onboarding.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 2. Rodar o projeto localmente
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Pré-requisitos
 
-## License
+Antes de começar, certifique-se de ter instalado em sua máquina:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Docker** (versão recente)
+- **Docker Compose** (v2 ou superior)
+- **Git**
+- Sistema operacional Linux ou macOS
+
+    > No Windows, recomenda-se usar **WSL2**
+
+> Não é necessário ter PHP, Composer ou Node.js instalados localmente.
+
+---
+
+### Clonando o repositório
+
+Clone o projeto e acesse o diretório da aplicação:
+
+```bash
+git clone https://github.com/IagoMachado000/recipe-portal.git
+cd recipe-portal
+```
+
+---
+
+### Configurando variáveis de ambiente
+
+Crie o arquivo `.env` a partir do exemplo:
+
+```bash
+cp .env.example .env
+```
+
+---
+
+### Instalando dependências PHP (Composer)
+
+Use a imagem oficial do Laravel Sail para instalar as dependências PHP **sem precisar do Composer local**:
+
+```bash
+docker run --rm \
+  -u "$(id -u):$(id -g)" \
+  -v "$(pwd)":/var/www/html \
+  -w /var/www/html \
+  laravelsail/php84-composer:latest \
+  composer install
+```
+
+Esse comando irá:
+
+- Criar a pasta `vendor/`
+- Preparar o projeto para uso com o Sail
+
+---
+
+### Criando alias pro comando sail
+
+No terminal, dentro da pasta do projeto, rodar o comando abaixo. Ele irá criar um apelido pro comando `./vendor/bin/sail`
+
+```bash
+alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
+```
+
+---
+
+### Subindo os containers com Sail
+
+Após instalar as dependências, inicie os containers:
+
+```bash
+sail up -d (caso tenha criado o alias) ou
+
+./vendor/bin/sail up -d
+```
+
+> Na primeira execução, o Docker pode levar alguns minutos para baixar as imagens.
+
+---
+
+### Gerando a chave da aplicação
+
+Com os containers rodando, gere a chave da aplicação Laravel:
+
+```bash
+sail artisan key:generate (caso tenha criado o alias) ou
+
+./vendor/bin/sail artisan key:generate
+```
+
+---
+
+### Criando e populando o banco de dados
+
+Execute as migrations e seeders:
+
+```bash
+sail artisan migrate:fresh --seed (caso tenha criado o alias) ou
+
+./vendor/bin/sail artisan migrate:fresh --seed
+```
+
+Esse comando irá:
+
+- Apagar o banco (caso exista)
+- Criar todas as tabelas
+- Popular o banco com dados iniciais
+
+---
+
+### Instalando dependências Front-end
+
+Instale as dependências JavaScript:
+
+```bash
+sail npm install (caso tenha criado o alias) ou
+
+./vendor/bin/sail npm install
+```
+
+---
+
+### Rodando o front-end em modo desenvolvimento
+
+Inicie o Vite para desenvolvimento:
+
+```bash
+sail npm run dev (caso tenha criado o alias) ou
+
+./vendor/bin/sail npm run dev
+```
+
+> Esse comando mantém um processo ativo para hot reload de assets.
+
+---
+
+### Executando os testes automatizados
+
+Para rodar todos os testes da aplicação:
+
+```bash
+sail artisan test (caso tenha criado o alias) ou
+
+./vendor/bin/sail artisan test
+```
+
+---
+
+### Aplicação pronta
+
+Após executar todos os passos acima, a aplicação estará disponível em:
+
+```
+# Aplicação
+http://localhost
+
+# Servidor de E-mail
+http://localhost:8025
+
+# Login
+- Conectar no banco de dados
+- Abrir a tabela user
+- Pegar um e-mail
+- Usar a senha password padrão (para todos os usuários)
+```
+
+---
+
+### Comandos úteis do Sail
+
+```bash
+./vendor/bin/sail down            # Para os containers
+./vendor/bin/sail restart         # Reinicia os containers
+./vendor/bin/sail ps              # Lista containers ativos
+./vendor/bin/sail logs            # Visualiza logs
+./vendor/bin/sail shell           # Acessa o container da aplicação
+```
+
+---
+
+### Observações importantes
+
+- Sempre utilize `./vendor/bin/sail` para rodar:
+    - Artisan
+    - NPM
+    - Composer
+
+- Não execute comandos diretamente no host (ex: `php artisan`).
+- Caso tenha problemas com banco ou cache:
+
+    ```bash
+    ./vendor/bin/sail down -v
+    ./vendor/bin/sail up -d
+    ```
+
+---
+
+## 3. Decisões de Arquitetura
+
+A aplicação segue uma separação clara de responsabilidades:
+
+- **Controller**: camada fina de orquestração
+- **FormRequest**: validação e autorização de entrada
+- **DTO (Data Transfer Object)**: sanitização e padronização de dados
+- **Service Layer**: regras de negócio e transações
+- **Policy**: controle de autorização
+
+Essa separação evita controllers inchados, melhora a testabilidade e torna o código mais previsível e manutenível.
+
+---
+
+## 4. Modelagem de Domínio e Banco de Dados
+
+### Recipe
+
+- `title`
+    - Indexado para acelerar buscas por nome
+    - Índice funcional `LOWER(title)` para busca case-insensitive
+
+- `rating_avg`
+    - Indexado para otimizar ordenações por avaliação
+    - Índice parcial ignora registros soft-deleted
+
+- `steps`
+    - Tipo `jsonb`
+    - Escolha feita para evitar renderização de HTML bruto (`{!! !!}`), reduzindo riscos de XSS
+
+- `slug`
+    - Criado para URLs amigáveis
+    - Utilizado via Route Model Binding com chave customizada
+
+### Comment
+
+- Índice composto `(recipe_id, created_at DESC)`
+    - Otimiza listagem de comentários por receita
+    - Facilita ordenação por mais recentes
+
+### Rating
+
+- Constraint `CHECK (score BETWEEN 1 AND 5)`
+    - Regra de domínio garantida no banco
+
+- Constraint `UNIQUE (recipe_id, user_id)`
+    - Garante que cada usuário avalie uma receita apenas uma vez
+
+Essas decisões reforçam integridade de dados e performance.
+
+---
+
+## 5. Testes Automatizados
+
+### Estratégia
+
+- **Feature Tests**: validação do fluxo completo
+- **Unit Tests**: validação isolada do domínio
+
+A escolha foi priorizar o domínio e regras de negócio, evitando testes de UI.
+
+### Configuração
+
+- `RefreshDatabase` habilitado
+- SQLite em memória para execução rápida
+
+### Cobertura
+
+- Relacionamentos entre models
+- Casts (`ingredients`, `steps`)
+- Soft deletes
+- Constraints de banco
+- Cálculo automático de médias
+
+Algumas funcionalidades secundárias (comentários e avaliações) não possuem cobertura completa por limitação de tempo.
+
+---
+
+## 6. CRUD de Receitas
+
+### FormRequest
+
+- `StoreRecipeRequest`
+- `UpdateRecipeRequest`
+
+Uso de `prepareForValidation()` para normalizar título:
+
+```php
+$this->merge([
+    'title' => mb_strtolower(trim($this->title)),
+]);
+```
+
+Isso garante validação consistente e funcionamento correto da regra `unique`.
+
+### DTO
+
+Responsável por:
+
+- Sanitizar dados
+- Normalizar formatos
+- Garantir tipos corretos
+
+### Service
+
+- Uso de `DB::transaction()`
+- Garantia de atomicidade
+- Nenhuma operação parcial é persistida em caso de erro
+
+### Policy
+
+- Apenas o autor pode editar ou excluir a receita
+
+---
+
+## 7. Comentários
+
+### Validação
+
+- Texto obrigatório
+- Limite de caracteres
+- Autenticação via middleware
+
+### Service
+
+- Transação para criação e exclusão
+- Autorização: apenas autor pode excluir
+- Logging para auditoria
+
+### Segurança
+
+- Sanitização com `strip_tags()`
+- Normalização de espaços em branco
+
+---
+
+## 8. Avaliações (Ratings)
+
+### Regras
+
+- Score entre 1 e 5
+- Avaliação única por usuário
+
+### Service
+
+- `updateOrCreate()` respeitando constraint unique
+- Recalculo manual da média (`SUM / COUNT`)
+- Arredondamento para duas casas decimais
+
+### Notificações
+
+- Autor da receita é notificado
+- Auto-avaliações não geram notificação
+
+---
+
+## 9. Pesquisa, Filtros e Ordenação
+
+- Busca por título (case-insensitive)
+- Filtros: data, nome, avaliação
+- Ordenação ascendente/descendente
+- Preservação de estado via query string
+
+Consultas otimizadas com índices existentes e eager loading.
+
+---
+
+## 10. Rotas e URLs Amigáveis
+
+Uso de Route Model Binding com slug:
+
+```php
+Route::get('recipes/{recipe:slug}', [RecipeController::class, 'show']);
+```
+
+Melhora SEO, UX e legibilidade das URLs.
+
+---
+
+## 11. Feedback ao Usuário
+
+- Uso de `with()` para mensagens de sucesso/erro
+- Renderização condicional no Blade
+- Feedback consistente para ações de CRUD
+
+---
+
+## 12. JavaScript e CSS
+
+- Uso de `@stack` e `@push` para scripts pontuais
+- Abordagem simples e adequada ao tamanho do projeto
+
+Em projetos maiores, a abordagem ideal seria modularização completa.
+
+---
+
+## 13. Limitações e Trade-offs
+
+- Validação apenas no servidor (sem JS client-side)
+- Cobertura parcial de testes para comentários e avaliações
+- Estrutura mais robusta do que o mínimo exigido
+
+Essas decisões foram tomadas conscientemente devido ao tempo disponível e ao escopo do teste.
+
+---
+
+## Conclusão
+
+O foco do projeto foi demonstrar **clareza de raciocínio, organização de código, boas práticas e domínio do Laravel**, priorizando manutenção, segurança e legibilidade ao invés de volume de funcionalidades.

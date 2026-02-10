@@ -1,31 +1,31 @@
-# Domínio e decisões de modelagem
+# Modelagem de Domínio e Banco de Dados
 
-Este documento descreve as decisões de modelagem do banco de dados e os critérios adotados para estruturar o domínio da aplicação.
+Este documento descreve as decisões de **modelagem do domínio e do banco de dados** adotadas no projeto **Portal de Receitas**.
 
-A modelagem prioriza **integridade de dados**, **simplicidade** e **performance para leitura**, considerando os casos de uso propostos no escopo do teste.
+A modelagem foi pensada para atender aos requisitos do teste técnico, priorizando **integridade dos dados**, **simplicidade** e **performance para leitura**, especialmente em listagens e agregações.
 
 ---
 
-## Visão geral do domínio
+## Visão Geral do Domínio
 
 O sistema é composto por três entidades principais:
 
-- **recipes**: entidade central do domínio, representa uma receita criada por um usuário.
-- **comments**: interações textuais dos usuários com as receitas.
-- **ratings**: avaliações numéricas (1 a 5) feitas por usuários em receitas.
+- **recipes**: entidade central, representa uma receita criada por um usuário
+- **comments**: comentários feitos por usuários em receitas
+- **ratings**: avaliações numéricas (1 a 5) associadas às receitas
 
 ---
 
 ## recipes
 
-A tabela `recipes` concentra os dados principais da receita.
+A tabela `recipes` concentra os dados principais da aplicação.
 
 ### Decisões
 
-- Cada receita pertence a um único usuário (`user_id`), permitindo controle claro de autoria e aplicação de regras de autorização.
-- O campo `title` possui tamanho limitado e índice funcional (`lower(title)`), viabilizando busca _search-as-you-type_ case-insensitive.
-- O campo `ingredients` utiliza JSON para manter flexibilidade estrutural, evitando normalização excessiva.
-- A média e a quantidade de avaliações são **cacheadas** (`rating_avg`, `rating_count`) para evitar operações custosas (`JOIN` e `GROUP BY`) em listagens.
+- Cada receita pertence a um único usuário (`user_id`), permitindo controle claro de autoria.
+- O campo `title` possui tamanho limitado e índice funcional (`LOWER(title)`), viabilizando buscas case-insensitive.
+- O campo `ingredients` utiliza `jsonb` para manter flexibilidade estrutural, evitando normalização excessiva.
+- Os campos `rating_avg` e `rating_count` armazenam valores agregados para evitar operações custosas (`JOIN` e `GROUP BY`) em listagens.
 - O campo `created_at` é indexado para ordenação por recência.
 - O uso de `deleted_at` permite exclusão lógica (soft delete), preservando histórico de dados.
 
@@ -37,31 +37,30 @@ Garantir boa performance em listagens, filtros e ordenações frequentes, manten
 
 ## comments
 
-A tabela `comments` representa comentários feitos por usuários em receitas.
+A tabela `comments` representa interações textuais dos usuários com as receitas.
 
 ### Decisões
 
 - Cada comentário pertence a uma receita e a um usuário.
 - Um usuário pode comentar mais de uma vez na mesma receita, refletindo um comportamento natural de conversação.
-- O índice composto (`recipe_id`, `created_at DESC`) atende ao principal caso de uso:
+- O índice composto `(recipe_id, created_at DESC)` atende ao principal caso de uso:
     - listar comentários de uma receita do mais recente para o mais antigo.
 
 ### Objetivo
 
-Otimizar a leitura de comentários dentro da página da receita, sem complexidade adicional.
+Otimizar a leitura de comentários na página de detalhe da receita, sem complexidade adicional.
 
 ---
 
 ## ratings
 
-A tabela `ratings` armazena avaliações numéricas das receitas.
+A tabela `ratings` armazena avaliações numéricas feitas pelos usuários.
 
 ### Decisões
 
 - Um usuário pode avaliar uma receita apenas uma vez, garantido por `UNIQUE (recipe_id, user_id)`.
-- O campo `score` é validado no banco (valores entre 1 e 5), garantindo integridade dos dados.
-- Os valores agregados de avaliação não são calculados em tempo real, mas refletidos diretamente na tabela `recipes`.
-- A estrutura garante que cada usuário possa avaliar uma receita apenas uma vez, evitando duplicidades e simplificando o fluxo de avaliação.
+- O campo `score` possui constraint de banco (`CHECK (score BETWEEN 1 AND 5)`), garantindo integridade dos dados.
+- Os valores agregados não são calculados em tempo real, mas refletidos diretamente na tabela `recipes`.
 
 ### Objetivo
 
@@ -69,62 +68,48 @@ Manter consistência nas avaliações e permitir ordenação eficiente por nota 
 
 ---
 
-## Relacionamentos do domínio
+## Relacionamentos do Domínio
 
-Os relacionamentos foram definidos com base nas regras de negócio e no comportamento esperado dos usuários.
+- Um usuário pode criar várias receitas.
+- Cada receita pertence a um único usuário.
+- Uma receita pode possuir vários comentários e avaliações.
+- Um usuário pode comentar e avaliar várias receitas.
+- Cada avaliação é única por par usuário/receita.
 
-- Um **usuário pode criar várias receitas**.
-- Cada **receita pertence a um único usuário**.
-- Uma **receita pode possuir vários comentários** e **várias avaliações**.
-- Um **usuário pode comentar e avaliar várias receitas**.
-- Cada **avaliação é única por par usuário/receita**.
-
-Esses relacionamentos garantem integridade dos dados e refletem diretamente as regras do sistema.
+Esses relacionamentos refletem diretamente as regras de negócio do sistema.
 
 ---
 
-## Comentários sem encadeamento (replies)
+## Comentários sem Encadeamento
 
 Os comentários não possuem respostas encadeadas.
 
-Essa decisão foi tomada para manter o escopo alinhado ao proposto no teste, que exige apenas a criação e listagem de comentários associados às receitas.
-
-A ausência de encadeamento simplifica:
+Essa decisão mantém o escopo alinhado ao proposto no teste, simplificando:
 
 - o modelo de dados
 - as consultas de leitura
 - a interface do usuário
 
-O domínio foi estruturado de forma que, caso necessário no futuro, o encadeamento de comentários possa ser implementado sem refatorações estruturais relevantes.
+A estrutura foi pensada para permitir encadeamento futuro sem refatorações relevantes.
 
 ---
 
-## Considerações finais
-
-A modelagem foi pensada para:
-
-- refletir regras de negócio diretamente no banco de dados
-- evitar cálculos custosos em consultas frequentes
-- manter o domínio simples e coerente
-
----
-
-## Estrutura das tabelas
+## Estrutura das Tabelas
 
 ### recipes
 
 - `id` — **bigint** — **PK**
 - `user_id` — **bigint** — **FK → users.id** — **INDEX**
-- `title` — **varchar(120)** — **INDEX (funcional: lower(title))**
-- `description` — **varchar(500), nullable**
+- `title` — **varchar(120)** — **INDEX (funcional: LOWER(title))**
+- `description` — **varchar(500)** — nullable
 - `ingredients` — **jsonb**
 - `steps` — **jsonb**
 - `rating_avg` — **decimal(3,2)** — default **0** — **INDEX**
 - `rating_count` — **integer** — default **0**
-- `slug` - **varchar(255)**
+- `slug` — **varchar(255)**
 - `created_at` — **timestamp** — **INDEX**
 - `updated_at` — **timestamp**
-- `deleted_at` — **timestamp, nullable** _(soft delete)_
+- `deleted_at` — **timestamp**, nullable
 
 ### comments
 
@@ -134,7 +119,7 @@ A modelagem foi pensada para:
 - `body` — **text**
 - `created_at` — **timestamp**
 
-**Índice adicional (principal caso de uso):**
+**Índice adicional:**
 
 - **INDEX (recipe_id, created_at DESC)**
 
@@ -143,9 +128,15 @@ A modelagem foi pensada para:
 - `id` — **bigint** — **PK**
 - `recipe_id` — **bigint** — **FK → recipes.id** — **INDEX**
 - `user_id` — **bigint** — **FK → users.id** — **INDEX**
-- `score` — **smallint** — **CHECK (score between 1 and 5)**
+- `score` — **smallint** — **CHECK (score BETWEEN 1 AND 5)**
 - `created_at` — **timestamp**
 
-**Restrição (regra de negócio):**
+**Restrição de negócio:**
 
-- **UNIQUE (recipe_id, user_id)** _(um usuário avalia uma receita apenas uma vez)_
+- **UNIQUE (recipe_id, user_id)** — um usuário avalia uma receita apenas uma vez
+
+---
+
+## Considerações Finais
+
+A modelagem foi estruturada para refletir regras de negócio diretamente no banco, evitar cálculos custosos em consultas frequentes e manter o domínio simples, coerente e extensível.
