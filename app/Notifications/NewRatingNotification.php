@@ -44,7 +44,7 @@ class NewRatingNotification extends Notification
             // Metadados para UI
             'type' => 'new_rating',
             'icon' => '⭐',
-            'url' => route('recipes.show', $this->rating->recipe_id) . '#rating-' . $this->rating->id,
+            'url' => route('recipes.show', $this->rating->recipe->slug) . '#rating-' . $this->rating->id,
         ];
     }
 
