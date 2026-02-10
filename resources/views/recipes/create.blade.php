@@ -14,7 +14,6 @@
         <div class="col-12">
             <div class="d-flex align-items-center justify-content-between">
                 <label for="title" class="form-label">Título <span class="text-danger">*</span></label>
-                <div id="title_help" class="form-text text-end">0/120</div>
             </div>
             <input
                 type="text"
@@ -23,7 +22,6 @@
                 class="form-control @error('title') is-invalid @enderror"
                 value="{{ old('title') }}"
                 required
-                aria-describedby="title_help"
             >
             @error('title')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -33,14 +31,12 @@
         <div class="col-12">
             <div class="d-flex align-items-center justify-content-between">
                 <label for="description" class="form-label">Descrição</label>
-                <div id="description_help" class="form-text text-end">0/500</div>
             </div>
             <textarea
                 name="description"
                 id="description"
                 cols="30"
                 rows="10"
-                aria-describedby="description_help"
                 class="form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
             @error('description')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -90,14 +86,12 @@
         <div class="col-12">
             <div class="d-flex align-items-center justify-content-between">
                 <label for="steps" class="form-label">Passo a Passo</label>
-                <div id="steps_help" class="form-text text-end">0/2000</div>
             </div>
             <textarea
                 name="steps"
                 id="steps"
                 cols="30"
                 rows="10"
-                aria-describedby="steps_help"
                 class="form-control @error('steps') is-invalid @enderror"
                 required>{{ old('steps') }}</textarea>
             <small class="text-muted fs-6">Obs: 1 passo por linha</small>

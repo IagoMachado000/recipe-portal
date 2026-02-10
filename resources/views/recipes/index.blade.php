@@ -24,19 +24,19 @@
         <p class="text-muted">Descubra novas receitas compartilhadas por nossa comunidade</p>
         @guest
             <a href="{{ route('login') }}" class="btn btn-outline-primary">
-                Faça login para interagir
+                Faça login
             </a>
             <a href="{{ route('register') }}" class="btn btn-outline-secondary">
-                Registra-se
+                Registre-se
             </a>
         @endguest
     </div>
     <div class="row g-4">
         <div class="col-12">
             <div class="row justify-content-between">
-                <div class="col-6">
+                <div class="col-lg-6">
                     <form action="{{ route('recipes.index') }}" method="GET" class="mb-4">
-                        <div class="d-flex gap-2">
+                        <div class="d-flex flex-column flex-sm-row gap-2">
                             <div class="flex-grow-1">
                                 <input type="text" name="search"
                                     class="form-control"
@@ -51,17 +51,19 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-4">
-                    <div class="d-flex gap-2">
-                        <select name="filter" id="filter" class="form-select" style="flex: 1">
-                            <option value="" disabled selected>Selecione um filtro</option>
-                            <option value="date" {{ request('filter') == 'date' ? 'selected' : '' }}>Data de criação</option>
-                            <option value="title" {{ request('filter') == 'title' ? 'selected' : '' }}>Nome da receita</option>
-                            <option value="rating" {{ request('filter') == 'rating' ? 'selected' : '' }}>Avaliações</option>
-                        </select>
-                        <button id="filter_order" class="btn btn-outline-secondary d-flex align-items-center justify-content-center">
-                            <i class="sort-icon"></i>
-                        </button>
+                <div class="col-lg-6 col-xl-4">
+                    <div class="d-flex flex-column flex-sm-row gap-2 justify-content-end">
+                        <div class="d-flex gap-2 flex-grow-1">
+                            <select name="filter" id="filter" class="form-select">
+                                <option value="" disabled selected>Selecione um filtro</option>
+                                <option value="date" {{ request('filter') == 'date' ? 'selected' : '' }}>Data de criação</option>
+                                <option value="title" {{ request('filter') == 'title' ? 'selected' : '' }}>Nome da receita</option>
+                                <option value="rating" {{ request('filter') == 'rating' ? 'selected' : '' }}>Avaliações</option>
+                            </select>
+                            <button id="filter_order" class="btn btn-outline-secondary d-flex align-items-center justify-content-center">
+                                <i class="sort-icon"></i>
+                            </button>
+                        </div>
                         <a href="{{ route('recipes.index')}}" class="btn btn-outline-secondary text-capitalize">limpar filtros</a>
                     </div>
                 </div>

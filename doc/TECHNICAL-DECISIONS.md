@@ -356,3 +356,20 @@ Ajustando componente de pagination
 git checkout -b refactor/paginate
 
 sail artisan vendor:publish --tag=laravel-pagination
+
+git add .
+git commit -m "refactor(paginate): ajustando layout do componente paginate"
+git push -u origin refactor/paginate
+pr + merge
+git checkout develop && git pull
+
+===
+
+Ajustando responsividade da UI
+
+git checkout -b refactor/ui-responsive
+git add .
+git commit -m "refactor(ui): ajustando responsividade"
+git push -u origin refactor/ui-responsive
+pr + merge
+git checkout develop && git pull

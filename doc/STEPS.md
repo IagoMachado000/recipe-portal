@@ -313,3 +313,8 @@
 - Para mudar o parâmetro de rota de `id` para `slug` foi usado `Route Model Binding` com chave customizada
 - `Route::get('recipes/{recipe:slug}', [RecipeController::class, 'show'])->name('recipes.show');`
 - `nome do parâmetro:coluna do model usada na busca`
+
+## Paginate
+
+- Foi usado o comando `sail artisan vendor:publish --tag=laravel-pagination` para publicar os arquivos com os componentes de paginação
+- Componente usado foi o `vendor.pagination.bootstrap-5`
