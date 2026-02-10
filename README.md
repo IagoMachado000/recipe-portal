@@ -86,6 +86,38 @@ Crie o arquivo `.env` a partir do exemplo:
 cp .env.example .env
 ```
 
+Edite o arquivo `.env` e configure as seguintes variáveis:
+
+### Banco de Dados
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=pgsql
+DB_PORT=5432
+DB_DATABASE=recipe-portal
+DB_USERNAME=recipeportal
+DB_PASSWORD=recipeportal
+```
+
+> O valor `DB_HOST=mysql` é obrigatório para funcionar corretamente com o container do Sail.
+
+---
+
+### Configuração de E-mail (ambiente local)
+
+```env
+MAIL_MAILER=smtp
+MAIL_SCHEME=null
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+> No ambiente local, os e-mails não são enviados de fato — eles serão registrados no log da aplicação.
+
 ---
 
 ### Instalando dependências PHP (Composer)
