@@ -1,6 +1,7 @@
 @extends('layouts.app')
+
 @section('content')
-<div class="container py-5">
+<div class="container">
     <!-- Header Clean -->
     <div class="text-center mb-5">
         <h1 class="h2 fw-light text-muted">Receitas Deliciosas</h1>
@@ -45,11 +46,11 @@
                                         </small>
                                     </div>
                                     <small class="text-muted">
-                                        {{ $recipe->ratings_count }}
+                                        {{ $recipe->rating_avg }} ({{ $recipe->rating_count }})
                                     </small>
                                 </div>
                                 <small class="text-muted">
-                                    {{ $recipe->comments_count }} comments
+                                    {{ $recipe->comments_count }} comentários
                                 </small>
                             </div>
                         </a>
