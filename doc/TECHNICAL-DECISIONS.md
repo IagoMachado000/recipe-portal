@@ -343,3 +343,16 @@ git checkout develop && git pull
 Alterando parâmetro de rota do id para slug
 
 git checkout -b refactor/add-slug
+git add .
+git commit -m "refactor(recipes): alterando parâmetro de rota de id para slug"
+git push -u origin refactor/add-slug
+pr + merge
+git checkout develop && git pull
+
+===
+
+Ajustando componente de pagination
+
+git checkout -b refactor/paginate
+
+sail artisan vendor:publish --tag=laravel-pagination

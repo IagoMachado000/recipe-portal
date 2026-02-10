@@ -114,7 +114,7 @@
         @endforelse
     </div>
     <div class="d-flex justify-content-center mt-5">
-        {{ $recipes->links() }}
+        {{ $recipes->links('vendor.pagination.bootstrap-5') }}
     </div>
 </div>
 
